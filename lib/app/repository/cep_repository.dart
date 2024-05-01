@@ -43,7 +43,7 @@ class CEPRepository {
   Future<void> saveCEP(CEPModel model) async {
     try {
       if (model.cep == null) {
-        Toaster.showToast("Não foi possível salvar o CEP", true);
+        Toaster.showToast("CEP não encontrado.", true);
         return;
       }
       var ceps = getCEPs();

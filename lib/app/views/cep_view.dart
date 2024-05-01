@@ -1,4 +1,5 @@
 import 'package:cepper/app/controller/cep_controller.dart';
+import 'package:cepper/app/model/cep_model.dart';
 import 'package:flutter/material.dart';
 
 class CepView extends StatefulWidget {
@@ -38,6 +39,12 @@ class _CepViewState extends State<CepView> {
       itemBuilder: (context, index) {
         final cep = controller.ceps[index];
         return ListTile(
+          onTap: () {
+            if (cep == null) {
+              return;
+            }
+            handlePress(cep);
+          },
           title: Text(cep?.cep ?? "Não encontrado"),
           subtitle: Text(cep?.logradouro ?? "Não encontrado"),
           trailing: IconButton(
@@ -80,6 +87,68 @@ class _CepViewState extends State<CepView> {
       return emptyRender();
     }
     return loadingRender();
+  }
+
+  Widget renderCEPData(String info, String value) {
+    return SizedBox(
+      height: 32,
+      width: double.infinity,
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        spacing: 4,
+        runSpacing: 64,
+        runAlignment: WrapAlignment.spaceBetween,
+        children: [
+          Text(
+            '$info:',
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+          ),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void handlePress(CEPModel model) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Center(
+              child: Text(
+                model.cep ?? "Não encontrado",
+              ),
+            ),
+            content: SizedBox(
+                height: 150,
+                child: Center(
+                  child: Column(
+                    children: [
+                      renderCEPData(
+                          "Logradouro", model.logradouro ?? "Não encontrado"),
+                      renderCEPData("Bairro", model.bairro ?? "Não encontrado"),
+                      renderCEPData(
+                          "Localidade", model.localidade ?? "Não encontrado"),
+                      renderCEPData("UF", model.uf ?? "Não encontrado"),
+                    ],
+                  ),
+                )),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text(
+                  "OK!",
+                  style: TextStyle(fontSize: 16),
+                ),
+              )
+            ],
+          );
+        });
   }
 
   @override
