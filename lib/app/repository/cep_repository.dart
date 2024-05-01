@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:cepper/app/model/cep_model.dart';
+import 'package:cepper/app/utils/toast.dart';
 import 'package:localstorage/localstorage.dart';
 import 'package:collection/collection.dart';
 
@@ -17,7 +18,8 @@ class CEPRepository {
           decodedCeps.map((e) => CEPModel.fromJson(e)).toList();
       return ceps;
     } catch (e) {
-      throw Exception("Erro ao pegar os CEPs");
+      Toaster.showToast("Houve um erro ao listar os CEPs", true);
+      return [];
     }
   }
 
@@ -29,21 +31,29 @@ class CEPRepository {
       }
       var foundedCEP = ceps.firstWhereOrNull(
           (element) => element?.cep?.replaceAll('-', '') == cep);
+      if (foundedCEP != null) {
+        Toaster.showToast("CEP encontrado no cache!", false);
+      }
       return foundedCEP;
     } catch (e) {
-      throw Exception(
-        "Erro ao encontrar o CEP $e",
-      );
+      throw Exception("Erro ao encontrar o CEP");
     }
   }
 
   Future<void> saveCEP(CEPModel model) async {
     try {
+      if (model.cep == null) {
+        Toaster.showToast("Não foi possível salvar o CEP", true);
+        return;
+      }
       var ceps = getCEPs();
-      ceps.add(model);
+      ceps.insert(
+        0,
+        model,
+      );
       localStorage.setItem(storageKey, jsonEncode(ceps));
     } catch (e) {
-      throw Exception("Erro ao salvar o CEP");
+      Toaster.showToast("Houve um erro ao salvar o CEP", true);
     }
   }
 
@@ -52,8 +62,9 @@ class CEPRepository {
       var ceps = getCEPs();
       ceps.removeAt(index);
       localStorage.setItem(storageKey, jsonEncode(ceps));
+      Toaster.showToast("CEP deletado com sucesso!", false);
     } catch (e) {
-      throw Exception(e);
+      Toaster.showToast("Houve um erro ao deletar o CEP", true);
     }
   }
 }

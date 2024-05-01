@@ -33,14 +33,17 @@ class _CepViewState extends State<CepView> {
             maxLength: 8,
             keyboardType: TextInputType.number,
             onChanged: (value) => {
-              if (value.length == 8)
-                {
+              setState(() {
+                if (value.length == 8) {
                   controller.fetchCEP(value).then(
                     (value) {
-                      setState(() {});
+                      setState(() {
+                        cepInputController.clear();
+                      });
                     },
-                  )
+                  );
                 }
+              })
             },
             decoration: const InputDecoration(
                 labelText: "CEP", hintText: "Digite o CEP"),
