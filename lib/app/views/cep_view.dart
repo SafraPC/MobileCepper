@@ -23,6 +23,65 @@ class _CepViewState extends State<CepView> {
     );
   }
 
+  errorRender() {
+    return const Center(
+      child: Text(
+        "Houve um erro ao processar o CEP",
+        style: TextStyle(fontSize: 20, color: Colors.redAccent),
+      ),
+    );
+  }
+
+  loadedRender() {
+    return ListView.builder(
+      itemCount: controller.ceps.length,
+      itemBuilder: (context, index) {
+        final cep = controller.ceps[index];
+        return ListTile(
+          title: Text(cep?.cep ?? "Não encontrado"),
+          subtitle: Text(cep?.logradouro ?? "Não encontrado"),
+          trailing: IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: () {
+              if (cep == null) {
+                return;
+              }
+              controller.deleteCEP(index).then((value) => {setState(() {})});
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  emptyRender() {
+    return const Center(
+      child: Text(
+        "Nenhum CEP encontrado",
+        style: TextStyle(fontSize: 20, color: Colors.redAccent),
+      ),
+    );
+  }
+
+  loadingRender() {
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
+  }
+
+  managementRender() {
+    if (controller.status == CEPStatus.error) {
+      return errorRender();
+    }
+    if (controller.status == CEPStatus.loaded) {
+      return loadedRender();
+    }
+    if (controller.status == CEPStatus.empty) {
+      return emptyRender();
+    }
+    return loadingRender();
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -33,45 +92,28 @@ class _CepViewState extends State<CepView> {
             maxLength: 8,
             keyboardType: TextInputType.number,
             onChanged: (value) => {
-              setState(() {
-                if (value.length == 8) {
+              if (value.length == 8)
+                {
                   controller.fetchCEP(value).then(
                     (value) {
                       setState(() {
                         cepInputController.clear();
                       });
                     },
-                  );
+                  )
                 }
-              })
             },
             decoration: const InputDecoration(
                 labelText: "CEP", hintText: "Digite o CEP"),
           ),
           SizedBox(
-            height: MediaQuery.of(context).size.height - 250,
-            child: ListView.builder(
-              itemCount: controller.ceps.length,
-              itemBuilder: (context, index) {
-                final cep = controller.ceps[index];
-                return ListTile(
-                  title: Text(cep?.cep ?? "Não encontrado"),
-                  subtitle: Text(cep?.logradouro ?? "Não encontrado"),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete),
-                    onPressed: () {
-                      if (cep == null) {
-                        return;
-                      }
-                      controller
-                          .deleteCEP(index)
-                          .then((value) => {setState(() {})});
-                    },
-                  ),
-                );
-              },
-            ),
-          )
+              height: MediaQuery.of(context).size.height - 250,
+              child: AnimatedBuilder(
+                animation: controller,
+                builder: (context, child) {
+                  return managementRender();
+                },
+              ))
         ],
       ),
     );

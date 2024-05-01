@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData.dark(),
       home: Scaffold(
           appBar: AppBar(
-            title: const Text("CEPPER"),
+            title: const Text("Pesquise seu CEP"),
           ),
           body: const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
